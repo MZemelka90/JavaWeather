@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Wetterinformationen</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Wetter in <span th:text="${city}">Stadt</span></h1>
+
+        <div th:if="${description}" class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Wetter: <span th:text="${description}">Beschreibung</span></h5>
+                <p><strong>Temperatur:</strong> <span th:text="${temperature}">XX</span> °C</p>
+                <p><strong>Luftfeuchtigkeit:</strong> <span th:text="${humidity}">XX</span> %</p>
+                <p><strong>Windgeschwindigkeit:</strong> <span th:text="${windSpeed}">XX</span> km/h</p>
+            </div>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger mt-3">
+            <p th:text="${error}"></p>
+        </div>
+
+        <a href="/" class="btn btn-primary mt-3">Zurück zur Startseite</a>
+    </div>
+</body>
+</html>
