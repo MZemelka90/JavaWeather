@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Wetter in <span th:text="${city}">Stadt</span></h1>
+        <h1>Wetter in <span th:text="${city}">Stadt</span> am <span th:text="${date}">Datum</span></h1>
 
         <div th:if="${description}" class="card mt-3">
             <div class="card-body">
@@ -26,4 +26,3 @@
     </div>
 </body>
 </html>
-
