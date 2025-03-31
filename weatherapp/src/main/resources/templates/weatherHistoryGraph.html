@@ -10,9 +10,48 @@
     <!-- 3. Load Luxon adapter AFTER Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.1/dist/chartjs-adapter-luxon.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 5rem auto;
+        }
+        h1 {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        canvas {
+            background-color: #fff;
+            border-radius: 8px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container">
         <h1>Temperatur in <span th:text="${city}">Stadt</span> der letzten 7 Tage</h1>
 
         <div th:if="${error}" class="alert alert-danger mt-3">
@@ -31,14 +70,11 @@
             var dates = /*[[${dates}]]*/ [];
             var temperatures = /*[[${temperatures}]]*/ [];
             
-            console.log("Dates:", dates);
-            console.log("Temperatures:", temperatures);
-
             if (dates.length === 0 || temperatures.length === 0) {
                 console.error('Daten fehlen!');
                 return;
             }
-
+            
             // Convert dates using Luxon
             var chartData = dates.map(function(date, index) {
                 return {
@@ -46,7 +82,7 @@
                     y: temperatures[index]
                 };
             });
-
+            
             new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -55,7 +91,10 @@
                         data: chartData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgba(75, 192, 192, 1)'
                     }]
                 },
                 options: {
@@ -73,6 +112,25 @@
                         },
                         y: {
                             beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            titleFont: {
+                                size: 16
+                            },
+                            bodyFont: {
+                                size: 14
+                            }
                         }
                     }
                 }
