@@ -17,8 +17,8 @@ RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
 # Anwendung bauen
-RUN ./mvnw package -DskipTests
-
+# RUN ./mvnw package -DskipTests
+RUN ./mvnw package
 
 # Port für die Spring Boot Anwendung freigeben
 EXPOSE 8080

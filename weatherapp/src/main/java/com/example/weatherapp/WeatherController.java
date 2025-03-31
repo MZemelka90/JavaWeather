@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.Map;
+import java.util.List;
 
 @Controller
 public class WeatherController {
@@ -19,6 +20,9 @@ public class WeatherController {
 
     @Value("${weather.api.url}")
     private String apiUrl;
+
+    @Value("${weather.api.historyurl}")
+    private String historyUrl;
 
     private final RestTemplate restTemplate;
 
@@ -56,6 +60,42 @@ public class WeatherController {
         } catch (Exception ex) {
             model.addAttribute("error", "Unerwarteter Fehler: " + ex.getMessage());
             return "weather";
+        }
+    }
+
+    @GetMapping("/weather/{city}/history")
+    public String getWeatherHistory(@PathVariable String city, Model model) {
+        try {
+            // Ersetze die Platzhalter in der URL mit den aktuellen Werten
+            String url = historyUrl.replace("{city}", city).replace("{key}", apiKey).replace("{date}", "2025-03-28");
+            Map response = restTemplate.getForObject(url, Map.class);
+
+            // Wetterdaten extrahieren (keine zusätzliche JSON-Bibliothek nötig)
+            Map forecast = (Map) response.get("forecast");
+            List<Map> forecastday = (List<Map>) forecast.get("forecastday");
+            Map firstDay = forecastday.get(0);
+            Map day = (Map) firstDay.get("day");
+            Map condition = (Map) day.get("condition");
+
+            String description = (String) condition.get("text");
+            double temperature = (double) day.get("avgtemp_c");
+            int humidity = (int) day.get("avghumidity");
+            double windSpeed = (double) day.get("maxwind_kph");
+
+            // Daten in das Model legen
+            model.addAttribute("city", city);
+            model.addAttribute("description", description); // Wetterbeschreibung
+            model.addAttribute("temperature", temperature); // Durchschnittstemperatur
+            model.addAttribute("humidity", humidity); // Durchschnittsluftfeuchtigkeit
+            model.addAttribute("windSpeed", windSpeed); // Durchschnittsgeschwindigkeit
+
+            return "history"; // Thymeleaf-Seite wird geladen
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            model.addAttribute("error", "Fehler bei der Wetterabfrage: " + ex.getMessage());
+            return "history";
+        } catch (Exception ex) {
+            model.addAttribute("error", "Unerwarteter Fehler: " + ex.getMessage());
+            return "history";
         }
     }
 }
