@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Wetterhistorie der letzten 7 Tage</title>
+    <!-- 1. Load Luxon first -->
+    <script src="https://cdn.jsdelivr.net/npm/luxon@2.0.2/build/global/luxon.min.js"></script>
+    <!-- 2. Load Chart.js core -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- 3. Load Luxon adapter AFTER Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.1/dist/chartjs-adapter-luxon.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Temperatur in <span th:text="${city}">Stadt</span> der letzten 7 Tage</h1>
+
+        <div th:if="${error}" class="alert alert-danger mt-3">
+            <p th:text="${error}"></p>
+        </div>
+
+        <canvas id="temperatureChart" width="400" height="200"></canvas>
+        <a href="/" class="btn btn-primary mt-3">Zurück zur Startseite</a>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('temperatureChart').getContext('2d');
+            
+            // Thymeleaf inlined data
+            var dates = /*[[${dates}]]*/ [];
+            var temperatures = /*[[${temperatures}]]*/ [];
+            
+            console.log("Dates:", dates);
+            console.log("Temperatures:", temperatures);
+
+            if (dates.length === 0 || temperatures.length === 0) {
+                console.error('Daten fehlen!');
+                return;
+            }
+
+            // Convert dates using Luxon
+            var chartData = dates.map(function(date, index) {
+                return {
+                    x: luxon.DateTime.fromISO(date).toJSDate(),
+                    y: temperatures[index]
+                };
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Temperatur (°C)',
+                        data: chartData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'dd.MM.yyyy',
+                                displayFormats: {
+                                    day: 'dd.MM'
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

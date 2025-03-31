@@ -11,6 +11,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -97,6 +100,47 @@ public class WeatherController {
         } catch (Exception ex) {
             model.addAttribute("error", "Unerwarteter Fehler: " + ex.getMessage());
             return "history";
+        }
+    }
+    @GetMapping("/weather/{city}/history/last7days")
+    public String getLast7DaysWeather(@PathVariable String city, Model model) {
+        try {
+            // In getLast7DaysWeather method
+            LocalDate currentDate = LocalDate.now().minusDays(1);  // Start from yesterday
+            List<String> last7Days = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                last7Days.add(currentDate.minusDays(i).format(DateTimeFormatter.ISO_LOCAL_DATE));
+            }
+
+            // Erstelle eine Liste, um die Temperaturen der letzten 7 Tage zu speichern
+            List<Double> temperatures = new ArrayList<>();
+
+            // Abrufen der Wetterdaten für die letzten 7 Tage
+            for (String date : last7Days) {
+                String url = historyUrl.replace("{city}", city).replace("{key}", apiKey).replace("{date}", date);
+                Map response = restTemplate.getForObject(url, Map.class);
+
+                Map forecast = (Map) response.get("forecast");
+                List<Map> forecastday = (List<Map>) forecast.get("forecastday");
+                Map firstDay = forecastday.get(0);
+                Map day = (Map) firstDay.get("day");
+
+                Number tempNumber = (Number) day.get("avgtemp_c");
+                Double temperature = tempNumber != null ? tempNumber.doubleValue() : 0.0;                temperatures.add(temperature);
+                }
+
+            // Die letzten 7 Tage und die entsprechenden Temperaturen an das Model übergeben
+            model.addAttribute("city", city);
+            model.addAttribute("dates", last7Days);
+            model.addAttribute("temperatures", temperatures);
+
+            return "weatherHistoryGraph";  // Die Thymeleaf-Seite mit dem Graphen
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            model.addAttribute("error", "Fehler bei der Wetterabfrage: " + ex.getMessage());
+            return "weather";
+        } catch (Exception ex) {
+            model.addAttribute("error", "Unerwarteter Fehler: " + ex.getMessage());
+            return "weather";
         }
     }
 }
