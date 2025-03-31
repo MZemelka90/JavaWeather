@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -63,11 +64,11 @@ public class WeatherController {
         }
     }
 
-    @GetMapping("/weather/{city}/history")
-    public String getWeatherHistory(@PathVariable String city, Model model) {
+    @GetMapping("/weather/{city}/history/{date}")
+    public String getWeatherHistory(@PathVariable String city, @PathVariable String date, Model model) {
         try {
             // Ersetze die Platzhalter in der URL mit den aktuellen Werten
-            String url = historyUrl.replace("{city}", city).replace("{key}", apiKey).replace("{date}", "2025-03-28");
+            String url = historyUrl.replace("{city}", city).replace("{key}", apiKey).replace("{date}", date);
             Map response = restTemplate.getForObject(url, Map.class);
 
             // Wetterdaten extrahieren (keine zusätzliche JSON-Bibliothek nötig)
