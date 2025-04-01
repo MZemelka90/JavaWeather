@@ -26,6 +26,8 @@ jobs:
 
       - name: Baue das Projekt mit Maven
         run: mvn clean package --no-transfer-progress
+        working-directory: weatherapp
 
       - name: Starte die Tests
         run: mvn test
+        working-directory: weatherapp
