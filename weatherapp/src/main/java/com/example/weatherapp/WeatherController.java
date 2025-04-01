@@ -19,9 +19,6 @@ import java.util.List;
 @Controller
 public class WeatherController {
 
-    @Value("${weather.api.key}")
-    private String apiKey;
-
     @Value("${weather.api.url}")
     private String apiUrl;
 
@@ -36,9 +33,10 @@ public class WeatherController {
 
     @GetMapping("/weather/{city}")
     public String getWeather(@PathVariable String city, Model model) {
+        System.out.println(System.getenv("WEATHER_API_KEY"));
         try {
             // Ersetze die Platzhalter in der URL mit den aktuellen Werten
-            String url = apiUrl.replace("{city}", city).replace("{key}", apiKey);
+            String url = apiUrl.replace("{city}", city).replace("{key}", System.getenv("WEATHER_API_KEY"));
             Map response = restTemplate.getForObject(url, Map.class);
 
             // Wetterdaten extrahieren (keine zusätzliche JSON-Bibliothek nötig)
@@ -71,7 +69,7 @@ public class WeatherController {
     public String getWeatherHistory(@PathVariable String city, @PathVariable String date, Model model) {
         try {
             // Ersetze die Platzhalter in der URL mit den aktuellen Werten
-            String url = historyUrl.replace("{city}", city).replace("{key}", apiKey).replace("{date}", date);
+            String url = historyUrl.replace("{city}", city).replace("{key}", System.getenv("WEATHER_API_KEY")).replace("{date}", date);
             Map response = restTemplate.getForObject(url, Map.class);
 
             // Wetterdaten extrahieren (keine zusätzliche JSON-Bibliothek nötig)
@@ -117,7 +115,7 @@ public class WeatherController {
 
             // Abrufen der Wetterdaten für die letzten 7 Tage
             for (String date : last7Days) {
-                String url = historyUrl.replace("{city}", city).replace("{key}", apiKey).replace("{date}", date);
+                String url = historyUrl.replace("{city}", city).replace("{key}", System.getenv("WEATHER_API_KEY")).replace("{date}", date);
                 Map response = restTemplate.getForObject(url, Map.class);
 
                 Map forecast = (Map) response.get("forecast");

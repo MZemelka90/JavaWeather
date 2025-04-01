@@ -1,0 +1,11 @@
+services:
+  web:
+    image: java_weather_with_tests
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./.mvn:/app/.mvn
+      - ./src:/app/src
+      - ./mvnw:/app/mvnw
+      - ./pom.xml:/app/pom.xml
+
