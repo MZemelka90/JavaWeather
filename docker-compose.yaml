@@ -1,11 +1,11 @@
 services:
-  web:
-    image: java_weather_with_tests
+  weatherapp:
+    build: .
+    container_name: weatherapp_container
     ports:
       - "8080:8080"
     volumes:
-      - ./.mvn:/app/.mvn
-      - ./src:/app/src
-      - ./mvnw:/app/mvnw
-      - ./pom.xml:/app/pom.xml
-
+      - ./weatherapp/src:/app/src
+    env_file:
+      - .env
+    restart: unless-stopped

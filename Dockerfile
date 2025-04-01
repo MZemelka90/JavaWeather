@@ -1,31 +1,25 @@
-# Basis-Image mit JDK 17 auf Alpine
-FROM eclipse-temurin:17-jdk-alpine
+# Basis-Image mit Maven und JDK
+FROM maven:3.8.6-eclipse-temurin-17 AS dependency-cache
 
-# Arbeitsverzeichnis im Container setzen
+# Arbeitsverzeichnis festlegen
 WORKDIR /app
 
-# Wichtige Dateien kopieren
-COPY weatherapp/.mvn .mvn
-COPY weatherapp/mvnw .
+# Kopiere nur die pom.xml, um die Abhängigkeiten zu cachen
 COPY weatherapp/pom.xml .
-COPY weatherapp/src src
 
-# Maven Wrapper ausführbar machen
-RUN chmod +x mvnw
+# Lade alle Maven-Abhängigkeiten herunter (ohne den Quellcode)
+RUN mvn dependency:go-offline
 
-# Abhängigkeiten herunterladen (um Docker-Layer-Caching zu optimieren)
-RUN ./mvnw dependency:go-offline
+# Finales Image: Maven + Abhängigkeiten, aber ohne den Quellcode
+FROM maven:3.8.6-eclipse-temurin-17
 
-# Anwendung bauen
-# RUN ./mvnw package -DskipTests
-RUN ./mvnw package
+WORKDIR /app
 
-# Port für die Spring Boot Anwendung freigeben
+# Übernehme den Maven-Cache aus dem vorherigen Build-Stadium
+COPY --from=dependency-cache /root/.m2 /root/.m2
+COPY weatherapp/pom.xml .
+
 EXPOSE 8080
-
-# Healthcheck für den Container
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# Anwendung starten
-CMD ["./mvnw", "spring-boot:run"]
+# Standardkommando, das beim Starten des Containers ausgeführt wird.
+# Hier wird der Spring Boot App-Start angestoßen.
+CMD ["mvn", "spring-boot:run"]
