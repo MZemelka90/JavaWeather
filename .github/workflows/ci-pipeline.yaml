@@ -1,0 +1,30 @@
+name: CI Pipeline
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_and_test:
+    name: Build & Test
+    runs-on: ubuntu-latest  # Nutzt die neueste Ubuntu-Version als Runner
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Setze JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: maven  # Cacht Maven-Abhängigkeiten für schnellere Builds
+
+      - name: Setze Umgebungsvariablen
+        run: echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Baue das Projekt mit Maven
+        run: mvn clean package --no-transfer-progress
+
+      - name: Starte die Tests
+        run: mvn test
