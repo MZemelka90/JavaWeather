@@ -32,6 +32,22 @@ This is a simple weather app, which allows you to enter a city and retrieve the 
 
 The app uses the OpenWeatherMap API to retrieve the current weather data as well as the history of the weather data for the last 5 days.
 
+### Weather API specifics
+
+- **API Base URL:** `api.openweathermap.org`
+- **Endpoints:** 
+  - `/data/2.5/weather` for current weather data
+  - `/data/2.5/onecall/timemachine` for historical weather data
+- **Parameters:**
+  - **`city`**: The city for which you want to retrieve weather data
+  - **`appid`**: Your personal API key from OpenWeatherMap
+  - **`units`**: (optional) Units of measurement. Standard, metric, and imperial units are available.
+
+### API Key
+
+- You need a personal API key from OpenWeatherMap to access the endpoints.
+- Make yourself an .env file and put it in your github actions secrets to be able to run the program and pipeline.
+
 The app is built using Spring Boot and uses the Thymeleaf template engine for the frontend.
 
 The app also uses the Highcharts library to display the weather data in a graph.
