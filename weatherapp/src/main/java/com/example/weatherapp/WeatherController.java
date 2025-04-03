@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
@@ -31,9 +32,27 @@ public class WeatherController {
         this.restTemplate = restTemplate;
     }
 
+    @GetMapping("/")
+    public String index() {
+        return "index";  // Gibt index.html zurück
+    }
+
+    @PostMapping("/selectWeather")
+    public String selectWeather(@RequestParam("city") String city,
+                                @RequestParam("weatherType") String weatherType) {
+        if ("aktuell".equals(weatherType)) {
+            // Weiterleitung zur Seite für aktuelles Wetter
+            return "redirect:/weather/" + city;
+        } else if ("historie".equals(weatherType)) {
+            // Weiterleitung zur Historie (hier: letzte 7 Tage)
+            return "redirect:/weather/" + city + "/history/last7days";
+        }
+        return "redirect:/";
+    }
+
+
     @GetMapping("/weather/{city}")
     public String getWeather(@PathVariable String city, Model model) {
-        System.out.println(System.getenv("WEATHER_API_KEY"));
         try {
             // Ersetze die Platzhalter in der URL mit den aktuellen Werten
             String url = apiUrl.replace("{city}", city).replace("{key}", System.getenv("WEATHER_API_KEY"));
